@@ -1,4 +1,4 @@
-# Solucionador CSP 
+# CSP solver 
 [Spanish version](./README.md)
 
 ## Introduction
