@@ -8,7 +8,7 @@ aplicando lo aprendido en mi clase de Heurística y Optimización.
 
 ### Características de los niveles
 - Los niveles son cuadrículas de dimensiones NxM con una cierta cantidad de árboles.
-- Cada árbol tiene asignada una tienda de campaña que está contigua horizontal o verticalmente.
+- Cada árbol tiene asignada una tienda de campaña, que está contigua horizontal o verticalmente.
 - En el cuadrado alrededor de una tienda de campaña no puede haber otra tienda.
 - La suma de las tiendas de campaña en cada columna y en cada fila debe ser la que se indica en cada columna o fila (pudiendo no indicarse).
 
@@ -25,18 +25,18 @@ Para ejecutar se le pasa el archivo con el problema a resolver como argumento:
 ```
 $ python csp-arboles ./tests/arboles0
 ```
-La solución se mostrará por salida estandar.
+Una solución se mostrará por salida estandar.
 
 ### Formato de los problemas
-El programa lee un archivo de texto con los siguientes datos:
+El programa espera un archivo de texto con los siguientes datos:
 - Dimensión del problema: XxY
 - Número de tiendas que debe haber en cada columna, separadas por espacios
 - Número de tiendas que debe haber en cada fila, separadas por espacios
-- Representación del nivel por filas indicando los árboles con `x` y las casillas en blanco con `-`
+- Representación del nivel por filas marcando los árboles con `x` y las casillas en blanco con `-`
 
 El nivel de ejemplo (`arboles6`):
 <figure>
-    <img src="level.jpg" alt="Ejemplo de nivel" width=300>
+    <img src="level.jpg" alt="Ejemplo de un nivel" width=300>
 </figure>
 
 Se representaría así:
@@ -54,7 +54,7 @@ x-------
 ----x---
 ```
 
-Este solver también es capaz de encontrar soluciones en los niveles donde no se indíca el número de tiendas que debe haber en alguna fila o columna como en el ejemplo.
+Este solver también es capaz de encontrar soluciones en niveles donde no se indíca el número de tiendas que debe haber en alguna fila o columna como en el ejemplo.
 Las filas o columnas en las que no se indica cuántas debe haber se representan con `-`.
 
 ### Salida
