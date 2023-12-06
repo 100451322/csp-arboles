@@ -9,19 +9,24 @@ def leer_archivo(archivo):
     """Lee el archivo de entrada y devuelve las dimensiones del mapa,
     el número de tiendas que debe haber en las filas y en las columnas, y
     las posiciones de los arboles"""
+
     with open(archivo, "r") as f:
         lineas = list(linea.strip() for linea in f.readlines())
+
         # Tomamos la informacion de las primeras 3 lineas
+        # Los guiones los sustituimos por un sys.maxsize para
+        # poder reconocerlos facilmente pero que sean numeros
         dimensiones = tuple(map(int, lineas[0].split("x")))
         tiendas_columnas = tuple(map(int, lineas[1].replace("-", str(sys.maxsize)).split(" ")))
         tiendas_filas = tuple(map(int, lineas[2].replace("-", str(sys.maxsize)).split(" ")))
+
         # Juntamos el resto de lineas en un solo string
         # para poder buscar los arboles marcados con una x
         mapa = "".join(lineas[3:])
         arboles = []
-        for i in range(len(mapa)):
-            if mapa[i] == "x":
-                arboles.append(i)
+        for (idx, ch) in enumerate(mapa):
+            if ch == "x":
+                arboles.append(idx)
 
         return dimensiones, tiendas_columnas, tiendas_filas, arboles
 
@@ -38,17 +43,17 @@ def calcular_dominio(dimensiones, arboles):
         y = i // X
 
         # Si está en la primera columna, no puede ponerse a la izquierda
-        if x == 0:  # and i-1 in posibles:
+        if x == 0:
             posibles.remove(i-1)
         # Si está en la ultima columna, no puede ponerse a la derecha
-        if x == X-1:  # and i+1 in posibles:
+        if x == X-1:
             posibles.remove(i+1)
 
         # Si está en la primera fila, no puede ponerse encima
-        if y == 0:  # and i-X in posibles:
+        if y == 0:
             posibles.remove(i-X)
         # Si está en la ultima fila, no puede ponerse debajo
-        if y == Y-1:  # and i+X in posibles:
+        if y == Y-1:
             posibles.remove(i+X)
 
         # No puede ponerse encima de otro arbol
@@ -61,25 +66,13 @@ def calcular_dominio(dimensiones, arboles):
 
 
 def suma_vertical(dimensiones, tiendas_columnas, lista_tiendas):
-    """Comprueba que la suma de las tiendas en cada columna sea correcta"""
-    X, _ = dimensiones
-    tiendas = [0] * X
-    for i in lista_tiendas:
-        tiendas[i % X] += 1
-
-    for i in range(X):
-        if tiendas_columnas[i] == sys.maxsize:
-            tiendas_columnas[i] = 0
-
-    return all(tiendas[i] == tiendas_columnas[i] for i in range(X))
-
-
-def suma_vertical_mejor(dimensiones, tiendas_columnas, lista_tiendas):
-    """Version mejorada de la funcion suma_vertical"""
+    """Compriueba que la suma de las tiendas en cada columna sea correcta"""
     X, _ = dimensiones
     tiendas = list(tiendas_columnas)
     for i in lista_tiendas:
         if tiendas_columnas[i % X] == sys.maxsize:
+            # No nos importa cuantas tiendas haya en las columnas con un -
+            # (representado por sys.maxsize)
             continue
         tiendas[i % X] -= 1
 
@@ -96,6 +89,8 @@ def suma_horizontal(dimensiones, tiendas_filas, lista_tiendas):
     tiendas = list(tiendas_filas)
     for i in lista_tiendas:
         if tiendas_filas[i // X] == sys.maxsize:
+            # No nos importa cuantas tiendas haya en las filas con un -
+            # (representado por sys.maxsize)
             continue
         tiendas[i // X] -= 1
 
@@ -111,7 +106,6 @@ def contiguas(dimensiones, *tiendas):
     en horizontal ni en vertical"""
 
     X, _ = dimensiones
-    # print(tiendas)
     for i in tiendas:
         x1 = i % X
         y1 = i // X
@@ -132,7 +126,6 @@ def diagonal(dimensiones, *tiendas):
     """Comprueba que se cumple que las tiendas no se tocan en diagonal"""
 
     X, _ = dimensiones
-    # print(tiendas)
     for i in tiendas:
         x1 = i % X
         y1 = i // X
@@ -149,7 +142,8 @@ def diagonal(dimensiones, *tiendas):
 
 def diagonal_func(dimensiones, *tiendas):
     """Version de 'programacion funcional' de la funcion diagonal"""
-    return (abs(i % dimensiones[0] - j % dimensiones[0]) == 1 and abs(i // dimensiones[0] - j // dimensiones[0]) == 1
+    return (abs(i % dimensiones[0] - j % dimensiones[0]) == 1 and
+            abs(i // dimensiones[0] - j // dimensiones[0]) == 1
             for i in tiendas for j in tiendas if i != j)
 
 
@@ -192,6 +186,7 @@ for i in ARBOLES:
 problem.addConstraint(c.AllDifferentConstraint(), ARBOLES)
 
 # Las tiendas no pueden estar contiguas ni en diagonal
+# Hacemos 3 restricciones porque es más rápido
 for i in ARBOLES:
     for j in ARBOLES:
         if i != j:
@@ -208,7 +203,7 @@ for i in ARBOLES:
 
 # La suma de las tiendas en cada columna debe ser correcta
 problem.addConstraint(c.FunctionConstraint(
-    lambda *tiendas: suma_vertical_mejor((X, Y), TIENDAS_COLUMNAS, tiendas)), ARBOLES)
+    lambda *tiendas: suma_vertical((X, Y), TIENDAS_COLUMNAS, tiendas)), ARBOLES)
 
 # La suma de las tiendas en cada fila debe ser correcta
 problem.addConstraint(c.FunctionConstraint(
@@ -221,4 +216,4 @@ if not solucion:
     print("No hay solucion")
 else:
     formatear_solucion(solucion, ARBOLES, (X, Y), TIENDAS_COLUMNAS, TIENDAS_FILAS)
-    print(solucion)
+    # print(solucion)
